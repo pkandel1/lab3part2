@@ -25,7 +25,7 @@ urlpatterns = [
     path('customer/<int:cust_pk>/piechart/', views.pie_chart, name='pie-chart'),
     path('customer/<int:pk>/bar-chart/',ChartData.as_view(), name = 'chartdata'),
     path("password_reset", views.password_reset_request, name="password_reset"),
-    path('customer/<int:pk>/portfolio/pdf/', views.generate_pdf_view, name='generate_pdf_view'),
+
 
 
 
