@@ -45,7 +45,7 @@ from .serializers import CustomerSerializer
 from .models import *
 from .forms import *
 from django.views.generic import View
-from .utils import render_to_pdf
+
 from django.contrib.auth.decorators import login_required, user_passes_test
 import json
 
