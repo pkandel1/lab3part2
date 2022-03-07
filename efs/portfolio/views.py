@@ -323,64 +323,6 @@ def password_reset_request(request):
     return render(request=request, template_name="portfolio/password_reset.html", context={"password_reset_form":password_reset_form})
 
 
-@login_required
-def generate_pdf_view(request,pk, *args, **kwargs):
-    customer = get_object_or_404(Customer, pk=pk)
-    customers = Customer.objects.filter(created_date__lte=timezone.now())
-    investments = Investment.objects.filter(customer=pk)
-    stocks = Stock.objects.filter(customer=pk)
-    sum_recent_value = Investment.objects.filter(customer=customer).aggregate(Sum('recent_value'))
-    sum_acquired_value = Investment.objects.filter(customer=customer).aggregate(Sum('acquired_value'))
-    sum_current_stocks_value = 0
-    sum_of_initial_stock_value = 0
-    sum_current_investment_value = 0
-    sum_of_initial_investment_value = 0
-    # Loop through each stock and add the value to the total
-    for stock in stocks:
-        sum_current_stocks_value += stock.current_stock_value()
-        sum_of_initial_stock_value += stock.initial_stock_value()
-
-    result = decimal.Decimal(sum_current_stocks_value) - (sum_of_initial_stock_value)
-
-    for investment in investments:
-        sum_current_investment_value += investment.recent_value
-        sum_of_initial_investment_value += investment.acquired_value
-
-    result1 = sum_current_investment_value - sum_of_initial_investment_value
-
-    Total_current_investments = float(sum_current_stocks_value) + float(sum_current_investment_value)
-    Total_initial_investmensts = float(sum_of_initial_investment_value) + float(sum_of_initial_stock_value)
-    Grand_total = result + result1
-
-    template = get_template('portfolio/convert_pdf.html')
-    context = {'customers': customers,
-               'investments': investments,
-               'stocks': stocks,
-               'sum_acquired_value': sum_acquired_value,
-               'sum_recent_value': sum_recent_value,
-               'result': result,
-               'sum_current_stocks_value': sum_current_stocks_value,
-               'sum_of_initial_stock_value': sum_of_initial_stock_value,
-               'sum_current_investment_value':sum_current_investment_value,
-               'sum_of_initial_investment_value':sum_of_initial_investment_value,
-               'result1':result1,
-               'Total_current_investments':Total_current_investments,
-               'Total_initial_investmensts': Total_initial_investmensts,
-               'Grand_total':Grand_total}
-    html = template.render(context)
-    pdf = render_to_pdf('portfolio/convert_pdf.html', context)
-    if pdf:
-        response = HttpResponse(pdf, content_type='application/pdf')
-        filename = "Customers_%s.pdf" %("portfolio")
-        content = "inline; filename='%s'" %(filename)
-
-        download = request.GET.get("download")
-        if download:
-            content = "attachment; filename='%s'" %(filename)
-        response['Content-Disposition'] = content
-        return response
-    return HttpResponse("Not found")
-
 
 
 
